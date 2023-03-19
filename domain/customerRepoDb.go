@@ -22,8 +22,6 @@ const (
 
 func (d CustomerRepoDb) FindAll() ([]Customer, error) {
 
-	defer d.client.Close()
-
 	findAllCustomer := "select * from customers "
 	rows, err := d.client.Query(findAllCustomer)
 	if err != nil {
@@ -41,6 +39,19 @@ func (d CustomerRepoDb) FindAll() ([]Customer, error) {
 		customers = append(customers, c)
 	}
 	return customers, nil
+}
+
+func (d CustomerRepoDb) GetCustomerByID(id string) (*Customer, error) {
+
+	findCustomerByID := "select * from customers where customer_id=$1"
+	var c Customer
+	rows := d.client.QueryRow(findCustomerByID, id)
+	err := rows.Scan(&c.Id, &c.Name, &c.City, &c.DateOfBirth, &c.Zipcode, &c.Status)
+	if err != nil {
+		log.Println("Error while looping cutomers" + err.Error())
+		return nil, err
+	}
+	return &c, nil
 }
 
 func NewCustomerRepoDb() CustomerRepoDb {

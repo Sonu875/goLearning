@@ -4,6 +4,7 @@ import "github.com/Sonu875/goLearning/domain"
 
 type CustomerService interface {
 	GetAllCustomer() ([]domain.Customer, error)
+	GetCustomerByID(id string) (*domain.Customer, error)
 }
 
 type DefaultCustomerService struct {
@@ -12,6 +13,10 @@ type DefaultCustomerService struct {
 
 func (s DefaultCustomerService) GetAllCustomer() ([]domain.Customer, error) {
 	return s.repo.FindAll()
+}
+
+func (s DefaultCustomerService) GetCustomerByID(id string) (*domain.Customer, error) {
+	return s.repo.GetCustomerByID(id)
 }
 
 func NewCustomerService(repo domain.CustomerRepo) DefaultCustomerService {

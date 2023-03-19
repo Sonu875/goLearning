@@ -29,6 +29,20 @@ func (ch *CustomerHandler) getAllCustomer(w http.ResponseWriter, r *http.Request
 
 }
 
+func (ch *CustomerHandler) getCustomerByID(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	customer, err := ch.service.GetCustomerByID(vars["customer_id"])
+	if customer == nil {
+		w.WriteHeader(http.StatusNotFound)
+		w.Header().Add("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(err.Error())
+	} else {
+		w.Header().Add("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(customer)
+	}
+
+}
+
 func greet(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	fmt.Fprint(w, vars["category"])

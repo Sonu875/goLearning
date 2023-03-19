@@ -3,11 +3,12 @@ package app
 import (
 	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 func Start() {
-
-	http.HandleFunc("/time", greet)
-
-	log.Fatal(http.ListenAndServe("localhost:8000", nil))
+	router := mux.NewRouter()
+	router.HandleFunc("/api/time", currentTime)
+	log.Fatal(http.ListenAndServe("localhost:8000", router))
 }

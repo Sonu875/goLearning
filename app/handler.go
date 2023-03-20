@@ -19,13 +19,9 @@ func (ch *CustomerHandler) getAllCustomer(w http.ResponseWriter, r *http.Request
 
 	customers, err := ch.service.GetAllCustomer()
 	if customers == nil {
-
-		w.Header().Add("Content-Type", "application/json")
-		w.WriteHeader(err.Code)
-		json.NewEncoder(w).Encode(err.AsMessage())
+		writeResponse(w, err.Code, err.AsMessage())
 	} else {
-		w.Header().Add("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(customers)
+		writeResponse(w, http.StatusOK, customers)
 	}
 
 }
@@ -34,19 +30,23 @@ func (ch *CustomerHandler) getCustomerByID(w http.ResponseWriter, r *http.Reques
 	vars := mux.Vars(r)
 	customer, err := ch.service.GetCustomerByID(vars["customer_id"])
 	if customer == nil {
-
-		w.Header().Add("Content-Type", "application/json")
-		w.WriteHeader(err.Code)
-		json.NewEncoder(w).Encode(err.AsMessage())
+		writeResponse(w, err.Code, err.AsMessage())
 	} else {
-		w.Header().Add("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(customer)
+		writeResponse(w, http.StatusOK, customer)
 	}
 
 }
 
+func writeResponse(w http.ResponseWriter, code int, data interface{}) {
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(code)
+	if err := json.NewEncoder(w).Encode(data); err != nil {
+		panic(err)
+	}
+}
+
 func greet(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
+	vars:= mux.Vars(r)
 	fmt.Fprint(w, vars["category"])
 }
 

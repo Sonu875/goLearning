@@ -2,7 +2,6 @@ package app
 
 import (
 	"encoding/json"
-	"encoding/xml"
 	"fmt"
 	"net/http"
 	"strings"
@@ -18,10 +17,11 @@ type CustomerHandler struct {
 
 func (ch *CustomerHandler) getAllCustomer(w http.ResponseWriter, r *http.Request) {
 
-	customers, _ := ch.service.GetAllCustomer()
-	if r.Header.Get("Content-Type") == "application/xml" {
-		w.Header().Add("Content-Type", "application/xml")
-		xml.NewEncoder(w).Encode(customers)
+	customers, err := ch.service.GetAllCustomer()
+	if customers == nil {
+		w.WriteHeader(err.Code)
+		w.Header().Add("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(err.Message)
 	} else {
 		w.Header().Add("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(customers)
@@ -33,9 +33,9 @@ func (ch *CustomerHandler) getCustomerByID(w http.ResponseWriter, r *http.Reques
 	vars := mux.Vars(r)
 	customer, err := ch.service.GetCustomerByID(vars["customer_id"])
 	if customer == nil {
-		w.WriteHeader(http.StatusNotFound)
+		w.WriteHeader(err.Code)
 		w.Header().Add("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(err.Error())
+		json.NewEncoder(w).Encode(err.Message)
 	} else {
 		w.Header().Add("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(customer)

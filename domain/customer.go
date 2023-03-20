@@ -1,5 +1,7 @@
 package domain
 
+import appError "github.com/Sonu875/goLearning/Errors"
+
 type Customer struct {
 	Id          string
 	Name        string
@@ -10,6 +12,6 @@ type Customer struct {
 }
 
 type CustomerRepo interface {
-	FindAll() ([]Customer, error)
-	GetCustomerByID(id string) (*Customer, error)
+	FindAll() ([]Customer, *appError.AppError)
+	GetCustomerByID(id string) (*Customer, *appError.AppError)
 }

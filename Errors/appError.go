@@ -5,8 +5,14 @@ import (
 )
 
 type AppError struct {
-	Code    int
+	Code    int `json:",omitempty"`
 	Message string
+}
+
+func (e AppError) AsMessage() *AppError {
+	return &AppError{
+		Message: e.Message,
+	}
 }
 
 func NewNotFoundError(message string) *AppError {

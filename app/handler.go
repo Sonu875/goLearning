@@ -19,9 +19,10 @@ func (ch *CustomerHandler) getAllCustomer(w http.ResponseWriter, r *http.Request
 
 	customers, err := ch.service.GetAllCustomer()
 	if customers == nil {
-		w.WriteHeader(err.Code)
+
 		w.Header().Add("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(err.Message)
+		w.WriteHeader(err.Code)
+		json.NewEncoder(w).Encode(err)
 	} else {
 		w.Header().Add("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(customers)
@@ -33,9 +34,10 @@ func (ch *CustomerHandler) getCustomerByID(w http.ResponseWriter, r *http.Reques
 	vars := mux.Vars(r)
 	customer, err := ch.service.GetCustomerByID(vars["customer_id"])
 	if customer == nil {
-		w.WriteHeader(err.Code)
+
 		w.Header().Add("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(err.Message)
+		w.WriteHeader(err.Code)
+		json.NewEncoder(w).Encode(err)
 	} else {
 		w.Header().Add("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(customer)

@@ -6,11 +6,13 @@ import (
 	"log"
 
 	appError "github.com/Sonu875/goLearning/Errors"
+	"github.com/Sonu875/goLearning/logger"
+	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 )
 
 type CustomerRepoDb struct {
-	client *sql.DB
+	client *sqlx.DB
 }
 
 const (
@@ -21,29 +23,26 @@ const (
 	dbname   = "banking"
 )
 
-func (d CustomerRepoDb) FindAll() ([]Customer, *appError.AppError) {
-
-	findAllCustomer := "select * from customers "
-	rows, err := d.client.Query(findAllCustomer)
+func (d CustomerRepoDb) FindAll(status string) ([]Customer, *appError.AppError) {
+	var findAllCustomer string
+	var customers = make([]Customer, 0)
+	if status == "" {
+		findAllCustomer = "select * from customers "
+	} else if status == "inactive" {
+		findAllCustomer = "select * from customers where status=false"
+	} else {
+		findAllCustomer = "select * from customers where status=true"
+	}
+	err := d.client.Select(&customers, findAllCustomer)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, appError.NewNotFoundError("No Customers found")
 
 		} else {
-			log.Println("Error while querying cutomers" + err.Error())
+			logger.Error("Error while querying cutomers" + err.Error())
 			return nil, appError.NewInternalServerError("Database related issue")
 		}
 
-	}
-	var customers = make([]Customer, 0)
-	for rows.Next() {
-		var c Customer
-		err := rows.Scan(&c.Id, &c.Name, &c.City, &c.DateOfBirth, &c.Zipcode, &c.Status)
-		if err != nil {
-			log.Println("Error while looping cutomers" + err.Error())
-			return nil, appError.NewInternalServerError("Something went wrong")
-		}
-		customers = append(customers, c)
 	}
 	return customers, nil
 }
@@ -52,13 +51,12 @@ func (d CustomerRepoDb) GetCustomerByID(id string) (*Customer, *appError.AppErro
 
 	findCustomerByID := "select * from customers where customer_id=$1"
 	var c Customer
-	rows := d.client.QueryRow(findCustomerByID, id)
-	err := rows.Scan(&c.Id, &c.Name, &c.City, &c.DateOfBirth, &c.Zipcode, &c.Status)
+	err := d.client.Get(&c, findCustomerByID, id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, appError.NewNotFoundError("No Customers found")
 		} else {
-			log.Println("Error while looping cutomers" + err.Error())
+			logger.Error("Error while looping cutomers" + err.Error())
 			return nil, appError.NewInternalServerError("Database related issue")
 		}
 
@@ -71,7 +69,7 @@ func NewCustomerRepoDb() CustomerRepoDb {
 		"password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname)
 
-	client, err := sql.Open("postgres", psqlInfo)
+	client, err := sqlx.Open("postgres", psqlInfo)
 	if err != nil {
 		log.Print(err.Error())
 		panic(err)

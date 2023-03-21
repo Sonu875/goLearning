@@ -6,7 +6,7 @@ import (
 )
 
 type CustomerService interface {
-	GetAllCustomer() ([]domain.Customer, *appError.AppError)
+	GetAllCustomer(status string) ([]domain.Customer, *appError.AppError)
 	GetCustomerByID(id string) (*domain.Customer, *appError.AppError)
 }
 
@@ -14,8 +14,8 @@ type DefaultCustomerService struct {
 	repo domain.CustomerRepo
 }
 
-func (s DefaultCustomerService) GetAllCustomer() ([]domain.Customer, *appError.AppError) {
-	return s.repo.FindAll()
+func (s DefaultCustomerService) GetAllCustomer(status string) ([]domain.Customer, *appError.AppError) {
+	return s.repo.FindAll(status)
 }
 
 func (s DefaultCustomerService) GetCustomerByID(id string) (*domain.Customer, *appError.AppError) {

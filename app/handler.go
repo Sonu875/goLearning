@@ -16,8 +16,8 @@ type CustomerHandler struct {
 }
 
 func (ch *CustomerHandler) getAllCustomer(w http.ResponseWriter, r *http.Request) {
-
-	customers, err := ch.service.GetAllCustomer()
+	status := r.URL.Query().Get("status")
+	customers, err := ch.service.GetAllCustomer(status)
 	if customers == nil {
 		writeResponse(w, err.Code, err.AsMessage())
 	} else {
@@ -46,7 +46,7 @@ func writeResponse(w http.ResponseWriter, code int, data interface{}) {
 }
 
 func greet(w http.ResponseWriter, r *http.Request) {
-	vars:= mux.Vars(r)
+	vars := mux.Vars(r)
 	fmt.Fprint(w, vars["category"])
 }
 

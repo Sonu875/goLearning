@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
 
 	appError "github.com/Sonu875/goLearning/Errors"
 	"github.com/Sonu875/goLearning/logger"
@@ -14,14 +15,6 @@ import (
 type CustomerRepoDb struct {
 	client *sqlx.DB
 }
-
-const (
-	host     = "localhost"
-	port     = 5432
-	user     = "ssonu"
-	password = "ssonu"
-	dbname   = "banking"
-)
 
 func (d CustomerRepoDb) FindAll(status string) ([]Customer, *appError.AppError) {
 	var findAllCustomer string
@@ -65,7 +58,14 @@ func (d CustomerRepoDb) GetCustomerByID(id string) (*Customer, *appError.AppErro
 }
 
 func NewCustomerRepoDb() CustomerRepoDb {
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
+
+	host := os.Getenv("DB_HOST")
+	port := os.Getenv("DB_PORT")
+	user := os.Getenv("DB_USER")
+	password := os.Getenv("DB_PASSWORD")
+	dbname := os.Getenv("DB_NAME")
+
+	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s "+
 		"password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname)
 

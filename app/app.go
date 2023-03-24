@@ -10,6 +10,7 @@ import (
 	"github.com/Sonu875/goLearning/logger"
 	"github.com/Sonu875/goLearning/service"
 	"github.com/gorilla/mux"
+	"github.com/jmoiron/sqlx"
 )
 
 func santityCheck() {
@@ -34,9 +35,14 @@ func santityCheck() {
 func Start() {
 	santityCheck()
 	router := mux.NewRouter()
-	ch := CustomerHandler{service.NewCustomerService(domain.NewCustomerRepoDb())}
+	dbClient := getDbClient()
+	customerRepoDB := domain.NewCustomerRepoDb(dbClient)
+	accountRepoDB := domain.NewAcountRepoDb(dbClient)
+	ch := CustomerHandler{service.NewCustomerService(customerRepoDB)}
+	ac := AccountHandler{service.NewAccountService(accountRepoDB)}
 	router.HandleFunc("/api/customers", ch.getAllCustomer).Methods("Get")
 	router.HandleFunc("/api/customer/{customer_id:[0-9]+}", ch.getCustomerByID).Methods("Get")
+	router.HandleFunc("/api/customer/{customer_id:[0-9]+}/account", ac.NewAccount).Methods(http.MethodPost)
 
 	router.HandleFunc("/api/time", currentTime)
 
@@ -44,4 +50,24 @@ func Start() {
 	port := os.Getenv("APP_PORT")
 
 	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%s", host, port), router))
+}
+
+func getDbClient() *sqlx.DB {
+
+	host := os.Getenv("DB_HOST")
+	port := os.Getenv("DB_PORT")
+	user := os.Getenv("DB_USER")
+	password := os.Getenv("DB_PASSWORD")
+	dbname := os.Getenv("DB_NAME")
+
+	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s "+
+		"password=%s dbname=%s sslmode=disable",
+		host, port, user, password, dbname)
+
+	client, err := sqlx.Open("postgres", psqlInfo)
+	if err != nil {
+		log.Print(err.Error())
+		panic(err)
+	}
+	return client
 }

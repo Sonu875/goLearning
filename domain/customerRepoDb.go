@@ -2,9 +2,6 @@ package domain
 
 import (
 	"database/sql"
-	"fmt"
-	"log"
-	"os"
 
 	appError "github.com/Sonu875/goLearning/Errors"
 	"github.com/Sonu875/goLearning/logger"
@@ -57,22 +54,7 @@ func (d CustomerRepoDb) GetCustomerByID(id string) (*Customer, *appError.AppErro
 	return &c, nil
 }
 
-func NewCustomerRepoDb() CustomerRepoDb {
+func NewCustomerRepoDb(dbClient *sqlx.DB) CustomerRepoDb {
 
-	host := os.Getenv("DB_HOST")
-	port := os.Getenv("DB_PORT")
-	user := os.Getenv("DB_USER")
-	password := os.Getenv("DB_PASSWORD")
-	dbname := os.Getenv("DB_NAME")
-
-	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s "+
-		"password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname)
-
-	client, err := sqlx.Open("postgres", psqlInfo)
-	if err != nil {
-		log.Print(err.Error())
-		panic(err)
-	}
-	return CustomerRepoDb{client}
+	return CustomerRepoDb{dbClient}
 }

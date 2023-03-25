@@ -31,3 +31,24 @@ func (s AccountHandler) NewAccount(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
+
+func (s AccountHandler) MakeTransaction(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	accountId := vars["account_id"]
+	var request dto.TransactionRequest
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		writeResponse(w, http.StatusBadRequest, err)
+	} else {
+		request.AccountId = accountId
+
+		transaction, err := s.service.NewTransaction(request)
+
+		if err != nil {
+			writeResponse(w, http.StatusBadRequest, err)
+		} else {
+			writeResponse(w, http.StatusBadRequest, transaction)
+		}
+
+	}
+}

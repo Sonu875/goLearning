@@ -43,7 +43,7 @@ func Start() {
 	router.HandleFunc("/api/customers", ch.getAllCustomer).Methods("Get")
 	router.HandleFunc("/api/customer/{customer_id:[0-9]+}", ch.getCustomerByID).Methods("Get")
 	router.HandleFunc("/api/customer/{customer_id:[0-9]+}/account", ac.NewAccount).Methods(http.MethodPost)
-
+	router.HandleFunc("/api/customer/{customer_id:[0-9]+}/account/{account_id:[0-9]+}", ac.MakeTransaction).Methods(http.MethodPost)
 	router.HandleFunc("/api/time", currentTime)
 
 	host := os.Getenv("APP_HOST")
